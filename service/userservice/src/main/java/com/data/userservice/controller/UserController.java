@@ -38,43 +38,62 @@ public class UserController {
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword);
         return ResultUtils.success(result);
     }
 
     @PostMapping("/login")
-    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
-        if (userLoginRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+    public BaseResponse<String> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
+        if(userLoginRequest == null){
+            throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        String userAccount = userLoginRequest.getUserAccount();
-        String userPassword = userLoginRequest.getUserPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        String tokenKey = userService.userLoginByToken(userLoginRequest);
+        return ResultUtils.success(tokenKey);
+    }
+
+    @PostMapping("/current")
+    public BaseResponse<User> userLogin(HttpServletRequest request) {
+        if(request == null){
+            throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        User user = userService.userLogin(userAccount, userPassword, request);
+        User user = userService.getCurrentUser(request);
         return ResultUtils.success(user);
     }
 
-    @PostMapping("/logout")
-    public BaseResponse<Integer> userLogout(HttpServletRequest request) {
-        if (request == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        int result = userService.userLogout(request);
-        return ResultUtils.success(result);
-    }
 
-    @GetMapping("/current")
-    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
-        long userId = loginUser.getId();
-        User user = userService.getById(userId);
-        User safetyUser = userService.getSafetyUser(user);
-        return ResultUtils.success(safetyUser);
-    }
+//    @PostMapping("/login")
+//    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+//        if (userLoginRequest == null) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        String userAccount = userLoginRequest.getUserAccount();
+//        String userPassword = userLoginRequest.getUserPassword();
+//        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        User user = userService.userLogin(userAccount, userPassword, request);
+//        return ResultUtils.success(user);
+//    }
+
+//    @PostMapping("/logout")
+//    public BaseResponse<Integer> userLogout(HttpServletRequest request) {
+//        if (request == null) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        int result = userService.userLogout(request);
+//        return ResultUtils.success(result);
+//    }
+
+//    @GetMapping("/current")
+//    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
+//        User loginUser = userService.getLoginUser(request);
+//        long userId = loginUser.getId();
+//        User user = userService.getById(userId);
+//        User safetyUser = userService.getSafetyUser(user);
+//        return ResultUtils.success(safetyUser);
+//    }
 
     @GetMapping("/search")
     public BaseResponse<List<User>> searchUser(String username, HttpServletRequest request) {

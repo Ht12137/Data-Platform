@@ -3,6 +3,7 @@ package com.data.userservice.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.data.exception.BusinessException;
 import com.data.userservice.model.entity.User;
+import com.data.userservice.model.request.UserLoginRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +33,16 @@ public interface UserService extends IService<User> {
      * @return 脱敏后的用户信息
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    /**
+     * 用户登录token实现
+     *
+     * @param userAccount 用户账户
+     * @param userPassword 用户密码
+     * @param request
+     * @return token值，用于下次请求带上请求头
+     */
+
+    String userLoginByToken(UserLoginRequest userLoginRequest);
 
     /**
      * 用户脱敏
@@ -80,4 +91,6 @@ public interface UserService extends IService<User> {
      * @throws BusinessException 未登录则抛异常
      */
     User getLoginUser(HttpServletRequest request);
+
+    User getCurrentUser(HttpServletRequest request);
 }
